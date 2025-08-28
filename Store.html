@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background-color: #fff;
+            min-height: 100vh;
+        }
+        
+        .app-bar {
+            background-color: #6200ee;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .app-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+        
+        .app-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .icon-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .custom-icon {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            filter: invert(1); /* Make white icons */
+        }
+        
+        .search-container {
+            padding: 15px;
+            background-color: #f5f5f5;
+        }
+        
+        .search-bar {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        
+        .filters-row {
+            display: flex;
+            padding: 10px 15px;
+            gap: 10px;
+            background-color: #f5f5f5;
+        }
+        
+        .filter-dropdown {
+            flex: 1;
+            position: relative;
+        }
+        
+        .filter-select {
+            width: 100%;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+        
+        .filter-dropdown::after {
+            content: "▼";
+            font-size: 12px;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        
+        .list-container {
+            padding: 15px;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+        
+        .list-item {
+            background-color: white;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .list-item.selected {
+            background-color: #e3f2fd;
+        }
+        
+        .item-checkbox {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: 500;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .item-details {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .item-detail {
+            margin-bottom: 3px;
+        }
+        
+        .modify-button {
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background-color: #6200ee;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            font-size: 24px;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .modal-header {
+            background-color: #6200ee;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .modal-footer {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .btn-cancel {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-primary {
+            background-color: #6200ee;
+            color: white;
+        }
+        
+        .language-dialog {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .dialog-title {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            font-weight: 500;
+        }
+        
+        .dialog-body {
+            padding: 15px;
+        }
+        
+        .dialog-actions {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .select-mode-bar {
+            background-color: #6200ee;
+            color: white;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .select-mode-title {
+            font-size: 18px;
+            font-weight: 500;
+        }
+        
+        .select-mode-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .select-mode-button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .delete-icon {
+            width: 20px;
+            height: 20px;
+            margin-left: 10px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .delete-icon:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- App Bar -->
+        <div class="app-bar">
+            <div class="app-title" id="app-title">Store System</div>
+            <div class="app-actions">
+                <button class="icon-button" id="refresh-btn">
+                    <span class="material-icons">refresh</span>
+                </button>
+                <button class="icon-button" id="export-btn">
+                    <img src="Assets/export.png" class="custom-icon" alt="Export">
+                </button>
+                <button class="icon-button" id="import-btn">
+                    <img src="Assets/import.png" class="custom-icon" alt="Import">
+                </button>
+                <button class="icon-button" id="language-btn">
+                    <img src="Assets/translate.png" class="custom-icon" alt="Language">
+                </button>
+            </div>
+        </div>
+
+        <!-- Selection Mode Bar (Hidden by default) -->
+        <div class="select-mode-bar" id="select-mode-bar" style="display: none;">
+            <div class="select-mode-title" id="selected-count">0 selected</div>
+            <div class="select-mode-actions">
+                <button class="select-mode-button" id="select-all-btn">
+                    <span class="material-icons">select_all</span>
+                    Select All
+                </button>
+                <button class="select-mode-button" id="delete-selected-btn">
+                    <img src="Assets/bin.png" class="custom-icon" alt="Delete" style="width: 20px; height: 20px;">
+                    Delete
+                </button>
+                <button class="select-mode-button" id="exit-select-mode-btn">
+                    <span class="material-icons">close</span>
+                    Exit
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <input type="text" class="search-bar" id="search-input" placeholder="Search items...">
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-row">
+            <div class="filter-dropdown">
+                <select class="filter-select" id="type-filter">
+                    <option value="all">Type: All</option>
+                    <option value="FA & HN">FA & HN</option>
+                    <option value="UI">UI</option>
+                    <option value="Training">Training</option>
+                    <option value="Game">Game</option>
+                    <option value="Others">Others</option>
+                </select>
+            </div>
+            <div class="filter-dropdown">
+                <select class="filter-select" id="stock-filter">
+                    <option value="all">Stock: All</option>
+                    <option value="in">In Stock</option>
+                    <option value="out">Out of Stock</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Items List -->
+        <div class="list-container" id="items-list">
+            <div class="loading">
+                <span>Loading...</span>
+            </div>
+        </div>
+
+        <!-- FAB -->
+        <div class="fab" id="add-fab">
+            <span class="material-icons">add</span>
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div class="modal-overlay" id="item-modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title" id="modal-title">Add Item</div>
+                    <button class="modal-close" id="modal-close">
+                        <span class="material-icons">close</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-content">
+                        <!-- Content will be dynamically inserted -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-cancel" id="modal-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="modal-submit">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Language Dialog -->
+        <div class="modal-overlay" id="language-modal" style="display: none;">
+            <div class="language-dialog">
+                <div class="dialog-title">Select Language</div>
+                <div class="dialog-body">
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="lang-en" name="language" value="en" checked>
+                            <label for="lang-en">English</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="lang-zh-HK" name="language" value="zh-HK">
+                            <label for="lang-zh-HK">繁体中文</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="lang-zh-CN" name="language" value="zh-CN">
+                            <label for="lang-zh-CN">简体中文</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="dialog-actions">
+                    <button class="btn btn-primary" id="language-save">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Translations
+        const translations = {
+            en: {
+                title: 'Store System',
+                search: 'Search items...',
+                add: 'Add',
+                modify: 'Modify',
+                language: 'Language',
+                filter: 'Type',
+                all: 'All',
+                itemId: 'ID',
+                itemName: 'Item Name',
+                numberOfItems: 'Number of Items',
+                itemType: 'Type',
+                submit: 'Submit',
+                cancel: 'Cancel',
+                package: 'Is it a package?',
+                yes: 'Yes',
+                no: 'No',
+                numberOfPackages: 'Number of Packages',
+                itemsPerPackage: 'Items per Package',
+                totalItems: 'Total Items',
+                addItem: 'Add Item',
+                modifyItem: 'Modify Item',
+                selectLanguage: 'Select Language',
+                english: 'English',
+                traditionalChinese: '繁体中文',
+                simplifiedChinese: '简体中文',
+                save: 'Save',
+                validation: 'Please fill all required fields',
+                operationSuccess: 'Operation completed successfully',
+                generatedId: 'Generated ID',
+                selectType: 'Select Type',
+                export: 'Export Data',
+                import: 'Import Data',
+                loading: 'Loading...',
+                refresh: 'Refresh',
+                inStock: 'In Stock',
+                outOfStock: 'Out of Stock',
+                stockFilter: 'Stock Status',
+                selectAll: 'Select All',
+                delete: 'Delete',
+                exit: 'Exit',
+                selected: 'selected',
+                deleteConfirm: 'Are you sure you want to delete the selected items?',
+                noItemsSelected: 'No items selected'
+            },
+            'zh-HK': {
+                title: '物資系統',
+                search: '搜索物資...',
+                add: '添加',
+                modify: '修改',
+                language: '語言',
+                filter: '按類型篩選',
+                all: '全部',
+                itemId: 'ID',
+                itemName: '物資名稱',
+                numberOfItems: '物資數量',
+                itemType: '類型',
+                submit: '提交',
+                cancel: '取消',
+                package: '是否是包裝？',
+                yes: '是',
+                no: '否',
+                numberOfPackages: '包裝數量',
+                itemsPerPackage: '每個包裝的物資數量',
+                totalItems: '總物資數量',
+                addItem: '添加物資',
+                modifyItem: '修改物資',
+                selectLanguage: '選擇語言',
+                english: 'English',
+                traditionalChinese: '繁体中文',
+                simplifiedChinese: '简体中文',
+                save: '保存',
+                validation: '請填寫所有必填',
+                operationSuccess: '操作成功完成',
+                generatedId: '生成的ID',
+                selectType: '選擇類型',
+                export: '導出數據',
+                import: '導入數據',
+                loading: '加載中...',
+                refresh: '刷新',
+                inStock: '有庫存',
+                outOfStock: '缺貨',
+                stockFilter: '庫存篩選',
+                selectAll: '全選',
+                delete: '刪除',
+                exit: '退出',
+                selected: '已選擇',
+                deleteConfirm: '確定要刪除選中的項目嗎？',
+                noItemsSelected: '未選擇任何項目'
+            },
+            'zh-CN': {
+                title: '物资系统',
+                search: '搜索物资...',
+                add: '添加',
+                modify: '修改',
+                language: '语言',
+                filter: '按类型筛选',
+                all: '全部',
+                itemId: 'ID',
+                itemName: '物资名称',
+                numberOfItems: '物资数量',
+                itemType: '类型',
+                submit: '提交',
+                cancel: '取消',
+                package: '是否是包裹？',
+                yes: '是',
+                no: '否',
+                numberOfPackages: '包装数量',
+                itemsPerPackage: '每个包装的物资数量',
+                totalItems: '总物资数量',
+                addItem: '添加物资',
+                modifyItem: '修改物资',
+                selectLanguage: '选择语言',
+                english: 'English',
+                traditionalChinese: '繁体中文',
+                simplifiedChinese: '简体中文',
+                save: '保存',
+                validation: '请填写所有必填',
+                operationSuccess: '操作成功完成',
+                generatedId: '生成的ID',
+                selectType: '选择类型',
+                export: '导出数据',
+                import: '导入数据',
+                loading: '加载中...',
+                refresh: '刷新',
+                inStock: '有库存',
+                outOfStock: '缺货',
+                stockFilter: '库存筛选',
+                selectAll: '全选',
+                delete: '删除',
+                exit: '退出',
+                selected: '已选择',
+                deleteConfirm: '确定要删除选中的项目吗？',
+                noItemsSelected: '未选择任何项目'
+            }
+        };
+
+        // App State
+        let state = {
+            items: [],
+            searchQuery: '',
+            filterType: 'all',
+            filterStock: 'all',
+            language: 'en',
+            modalType: null, // 'add' or 'modify'
+            selectedItem: null,
+            itemTypes: ['FA & HN', 'UI', 'Training', 'Game', 'Others'],
+            selectionMode: false,
+            selectedItems: new Set(),
+            longPressTimer: null
+        };
+
+        // DOM Elements
+        const elements = {
+            appTitle: document.getElementById('app-title'),
+            searchInput: document.getElementById('search-input'),
+            itemsList: document.getElementById('items-list'),
+            typeFilter: document.getElementById('type-filter'),
+            stockFilter: document.getElementById('stock-filter'),
+            addFab: document.getElementById('add-fab'),
+            itemModal: document.getElementById('item-modal'),
+            modalTitle: document.getElementById('modal-title'),
+            modalContent: document.getElementById('modal-content'),
+            modalSubmit: document.getElementById('modal-submit'),
+            modalCancel: document.getElementById('modal-cancel'),
+            modalClose: document.getElementById('modal-close'),
+            languageModal: document.getElementById('language-modal'),
+            languageSave: document.getElementById('language-save'),
+            refreshBtn: document.getElementById('refresh-btn'),
+            exportBtn: document.getElementById('export-btn'),
+            importBtn: document.getElementById('import-btn'),
+            languageBtn: document.getElementById('language-btn'),
+            selectModeBar: document.getElementById('select-mode-bar'),
+            selectedCount: document.getElementById('selected-count'),
+            selectAllBtn: document.getElementById('select-all-btn'),
+            deleteSelectedBtn: document.getElementById('delete-selected-btn'),
+            exitSelectModeBtn: document.getElementById('exit-select-mode-btn')
+        };
+
+        // Initialize the app
+        function initApp() {
+            loadData();
+            setupEventListeners();
+            render();
+        }
+
+        // Load data from localStorage
+        function loadData() {
+            const savedLanguage = localStorage.getItem('language');
+            if (savedLanguage) {
+                state.language = savedLanguage;
+                // Set the selected language in dropdowns
+                document.querySelectorAll('input[name="language"]').forEach(radio => {
+                    if (radio.value === savedLanguage) {
+                        radio.checked = true;
+                    }
+                });
+            }
+
+            const savedItems = localStorage.getItem('items');
+            if (savedItems) {
+                try {
+                    state.items = JSON.parse(savedItems);
+                } catch (e) {
+                    console.error('Error parsing saved items:', e);
+                    state.items = [];
+                }
+            }
+            
+            // Set the current filter values in dropdowns
+            elements.typeFilter.value = state.filterType;
+            elements.stockFilter.value = state.filterStock;
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('language', state.language);
+            localStorage.setItem('items', JSON.stringify(state.items));
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            elements.searchInput.addEventListener('input', (e) => {
+                state.searchQuery = e.target.value;
+                render();
+            });
+
+            elements.typeFilter.addEventListener('change', (e) => {
+                state.filterType = e.target.value;
+                render();
+            });
+
+            elements.stockFilter.addEventListener('change', (e) => {
+                state.filterStock = e.target.value;
+                render();
+            });
+
+            elements.addFab.addEventListener('click', () => {
+                openAddModal();
+            });
+
+            elements.modalCancel.addEventListener('click', closeModal);
+            elements.modalClose.addEventListener('click', closeModal);
+            elements.modalSubmit.addEventListener('click', handleModalSubmit);
+
+            elements.languageBtn.addEventListener('click', () => {
+                elements.languageModal.style.display = 'flex';
+            });
+
+            elements.languageSave.addEventListener('click', () => {
+                const selectedLang = document.querySelector('input[name="language"]:checked').value;
+                state.language = selectedLang;
+                elements.languageModal.style.display = 'none';
+                saveData();
+                render();
+            });
+
+            elements.refreshBtn.addEventListener('click', () => {
+                loadData();
+                render();
+                alert(translations[state.language].operationSuccess);
+            });
+
+            elements.exportBtn.addEventListener('click', exportData);
+            elements.importBtn.addEventListener('click', importData);
+            
+            // Selection mode buttons
+            elements.selectAllBtn.addEventListener('click', toggleSelectAll);
+            elements.deleteSelectedBtn.addEventListener('click', deleteSelectedItems);
+            elements.exitSelectModeBtn.addEventListener('click', exitSelectionMode);
+
+            // Close modals when clicking outside
+            document.addEventListener('click', (e) => {
+                if (e.target === elements.itemModal) {
+                    closeModal();
+                }
+                if (e.target === elements.languageModal) {
+                    elements.languageModal.style.display = 'none';
+                }
+            });
+        }
+
+        // Render the app based on current state
+        function render() {
+            const t = translations[state.language];
+            
+            // Update UI texts
+            elements.appTitle.textContent = t.title;
+            elements.searchInput.placeholder = t.search;
+            
+            // Update dropdowns text based on language
+            updateFilterDropdowns();
+            
+            // Update selection mode UI if active
+            if (state.selectionMode) {
+                elements.selectedCount.textContent = `${state.selectedItems.size} ${t.selected}`;
+                elements.selectAllBtn.innerHTML = `<span class="material-icons">select_all</span> ${t.selectAll}`;
+                elements.deleteSelectedBtn.innerHTML = `<img src="Assets/bin.png" class="custom-icon" alt="Delete" style="width: 20px; height: 20px;"> ${t.delete}`;
+                elements.exitSelectModeBtn.innerHTML = `<span class="material-icons">close</span> ${t.exit}`;
+            }
+            
+            // Filter items
+            const filteredItems = state.items.filter(item => {
+                const matchesSearch = item.itemName?.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+                                     item.itemId?.toLowerCase().includes(state.searchQuery.toLowerCase());
+                const matchesFilter = state.filterType === 'all' || item.itemType === state.filterType;
+                const matchesStock = state.filterStock === 'all' ||
+                                     (state.filterStock === 'in' && item.numberOfItems > 0) ||
+                                     (state.filterStock === 'out' && item.numberOfItems <= 0);
+                return matchesSearch && matchesFilter && matchesStock;
+            });
+
+            // Render items list
+            if (filteredItems.length === 0) {
+                elements.itemsList.innerHTML = `
+                    <div class="empty-state">
+                        ${state.searchQuery ? 'No items match your search' : 'No items found. Add your first item!'}
+                    </div>
+                `;
+            } else {
+                elements.itemsList.innerHTML = filteredItems.map(item => {
+                    const isSelected = state.selectedItems.has(item.itemId);
+                    return `
+                    <div class="list-item ${isSelected ? 'selected' : ''}" data-id="${item.itemId}">
+                        ${state.selectionMode ? `
+                            <input type="checkbox" class="item-checkbox" ${isSelected ? 'checked' : ''}>
+                        ` : ''}
+                        <div class="item-content">
+                            <div class="item-name">${item.itemName}</div>
+                            <div class="item-details">
+                                <div class="item-detail">${t.itemId}: ${item.itemId}</div>
+                                <div class="item-detail">${t.numberOfItems}: ${Math.floor(item.numberOfItems)}</div>
+                                <div class="item-detail">${t.itemType}: ${item.itemType}</div>
+                            </div>
+                        </div>
+                        ${!state.selectionMode ? `
+                        <div style="text-align: right; margin-top: 10px;">
+                            <button class="modify-button" data-id="${item.itemId}">${t.modify}</button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `}).join('');
+
+                // Add event listeners to modify buttons
+                if (!state.selectionMode) {
+                    document.querySelectorAll('.modify-button').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            const itemId = e.target.getAttribute('data-id');
+                            const item = state.items.find(i => i.itemId === itemId);
+                            if (item) {
+                                openModifyModal(item);
+                            }
+                        });
+                    });
+                }
+                
+                // Add long press and click event listeners to list items
+                document.querySelectorAll('.list-item').forEach(item => {
+                    setupItemInteractions(item);
+                });
+            }
+        }
+        
+        // Update filter dropdowns based on current language
+        function updateFilterDropdowns() {
+            const t = translations[state.language];
+            
+            // Update type filter options
+            const typeOptions = elements.typeFilter.options;
+            typeOptions[0].text = `${t.filter}: ${t.all}`;
+            
+            // Update stock filter options
+            const stockOptions = elements.stockFilter.options;
+            stockOptions[0].text = `${t.stockFilter}: ${t.all}`;
+            stockOptions[1].text = `${t.stockFilter}: ${t.inStock}`;
+            stockOptions[2].text = `${t.stockFilter}: ${t.outOfStock}`;
+        }
+
+        // Setup item interactions (long press and click)
+        function setupItemInteractions(itemElement) {
+            const itemId = itemElement.getAttribute('data-id');
+            
+            // Long press to enter selection mode
+            itemElement.addEventListener('mousedown', startLongPressTimer);
+            itemElement.addEventListener('touchstart', startLongPressTimer);
+            
+            itemElement.addEventListener('mouseup', clearLongPressTimer);
+            itemElement.addEventListener('touchend', clearLongPressTimer);
+            itemElement.addEventListener('mouseleave', clearLongPressTimer);
+            
+            // Click handler for selection mode
+            itemElement.addEventListener('click', (e) => {
+                if (state.selectionMode) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const checkbox = itemElement.querySelector('.item-checkbox');
+                    if (checkbox) {
+                        checkbox.checked = !checkbox.checked;
+                        toggleItemSelection(itemId, checkbox.checked);
+                    }
+                }
+            });
+            
+            // Checkbox change handler
+            const checkbox = itemElement.querySelector('.item-checkbox');
+            if (checkbox) {
+                checkbox.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    toggleItemSelection(itemId, checkbox.checked);
+                });
+            }
+        }
+        
+        // Start long press timer
+        function startLongPressTimer(e) {
+            if (state.selectionMode) return;
+            
+            clearLongPressTimer();
+            
+            state.longPressTimer = setTimeout(() => {
+                enterSelectionMode();
+                
+                // Select the item that was long pressed
+                const itemId = e.target.closest('.list-item').getAttribute('data-id');
+                toggleItemSelection(itemId, true);
+            }, 500); // 500ms for long press
+        }
+        
+        // Clear long press timer
+        function clearLongPressTimer() {
+            if (state.longPressTimer) {
+                clearTimeout(state.longPressTimer);
+                state.longPressTimer = null;
+            }
+        }
+        
+        // Enter selection mode
+        function enterSelectionMode() {
+            state.selectionMode = true;
+            state.selectedItems.clear();
+            elements.selectModeBar.style.display = 'flex';
+            render();
+        }
+        
+        // Exit selection mode
+        function exitSelectionMode() {
+            state.selectionMode = false;
+            state.selectedItems.clear();
+            elements.selectModeBar.style.display = 'none';
+            render();
+        }
+        
+        // Toggle item selection
+        function toggleItemSelection(itemId, selected) {
+            if (selected) {
+                state.selectedItems.add(itemId);
+            } else {
+                state.selectedItems.delete(itemId);
+            }
+            
+            // Update selected count
+            const t = translations[state.language];
+            elements.selectedCount.textContent = `${state.selectedItems.size} ${t.selected}`;
+            
+            // Update item appearance
+            const itemElement = document.querySelector(`.list-item[data-id="${itemId}"]`);
+            if (itemElement) {
+                if (selected) {
+                    itemElement.classList.add('selected');
+                } else {
+                    itemElement.classList.remove('selected');
+                }
+            }
+        }
+        
+        // Toggle select all items
+        function toggleSelectAll() {
+            const t = translations[state.language];
+            
+            // Get all visible items
+            const visibleItems = Array.from(document.querySelectorAll('.list-item'))
+                .map(item => item.getAttribute('data-id'));
+            
+            // Check if all visible items are already selected
+            const allSelected = visibleItems.every(id => state.selectedItems.has(id));
+            
+            if (allSelected) {
+                // Deselect all
+                visibleItems.forEach(id => toggleItemSelection(id, false));
+            } else {
+                // Select all visible items
+                visibleItems.forEach(id => toggleItemSelection(id, true));
+            }
+        }
+        
+        // Delete selected items
+        function deleteSelectedItems() {
+            const t = translations[state.language];
+            
+            if (state.selectedItems.size === 0) {
+                alert(t.noItemsSelected);
+                return;
+            }
+            
+            if (!confirm(t.deleteConfirm)) {
+                return;
+            }
+            
+            // Filter out selected items
+            state.items = state.items.filter(item => !state.selectedItems.has(item.itemId));
+            
+            // Save and update UI
+            saveData();
+            exitSelectionMode();
+            alert(t.operationSuccess);
+        }
+
+        // Open Add Item modal
+        function openAddModal() {
+            state.modalType = 'add';
+            state.selectedItem = null;
+            
+            const t = translations[state.language];
+            elements.modalTitle.textContent = t.addItem;
+            
+            // Generate a new ID
+            const newId = generateId();
+            
+            elements.modalContent.innerHTML = `
+                <div class="input-group">
+                    <label class="input-label">${t.generatedId}</label>
+                    <input type="text" class="input-field" id="modal-item-id" value="${newId}" readonly>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">${t.itemName} *</label>
+                    <input type="text" class="input-field" id="modal-item-name" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">${t.package}</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="package-no" name="is-package" value="no" checked>
+                            <label for="package-no">${t.no}</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="package-yes" name="is-package" value="yes">
+                            <label for="package-yes">${t.yes}</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group" id="package-fields" style="display: none;">
+                    <div class="input-group">
+                        <label class="input-label">${t.numberOfPackages}</label>
+                        <input type="number" class="input-field" id="modal-package-count">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">${t.itemsPerPackage}</label>
+                        <input type="number" class="input-field" id="modal-items-per-package">
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label">${t.totalItems}</label>
+                        <input type="text" class="input-field" id="modal-total-items" readonly>
+                    </div>
+                </div>
+                <div class="input-group" id="single-item-field">
+                    <label class="input-label">${t.numberOfItems}</label>
+                    <input type="number" class="input-field" id="modal-item-count">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">${t.itemType}</label>
+                    <select class="input-field" id="modal-item-type">
+                        ${state.itemTypes.map(type => `<option value="${type}">${type}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+            
+            // Show package fields when package option is selected
+            document.getElementById('package-yes').addEventListener('change', () => {
+                document.getElementById('package-fields').style.display = 'block';
+                document.getElementById('single-item-field').style.display = 'none';
+            });
+            
+            document.getElementById('package-no').addEventListener('change', () => {
+                document.getElementById('package-fields').style.display = 'none';
+                document.getElementById('single-item-field').style.display = 'block';
+            });
+            
+            // Calculate total items when package fields change
+            const calculateTotal = () => {
+                const packageCount = parseInt(document.getElementById('modal-package-count').value) || 0;
+                const itemsPerPackage = parseInt(document.getElementById('modal-items-per-package').value) || 0;
+                document.getElementById('modal-total-items').value = packageCount * itemsPerPackage;
+            };
+            
+            document.getElementById('modal-package-count').addEventListener('input', calculateTotal);
+            document.getElementById('modal-items-per-package').addEventListener('input', calculateTotal);
+            
+            elements.itemModal.style.display = 'flex';
+        }
+
+        // Open Modify Item modal
+        function openModifyModal(item) {
+            state.modalType = 'modify';
+            state.selectedItem = item;
+            
+            const t = translations[state.language];
+            elements.modalTitle.textContent = t.modifyItem;
+            
+            elements.modalContent.innerHTML = `
+                <div class="input-group">
+                    <label class="input-label">Current Item Details</label>
+                    <div style="padding: 10px; background: #f5f5f5; border-radius: 4px;">
+                        <div>${t.itemId}: ${item.itemId}</div>
+                        <div>${t.itemName}: ${item.itemName}</div>
+                        <div>${t.numberOfItems}: ${item.numberOfItems}</div>
+                        <div>${t.itemType}: ${item.itemType}</div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Action</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="action-increase" name="modify-action" value="increase" checked>
+                            <label for="action-increase">Add</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="action-decrease" name="modify-action" value="decrease">
+                            <label for="action-decrease">Take</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Amount</label>
+                    <input type="number" class="input-field" id="modal-amount" required>
+                </div>
+                <div class="input-group">
+                    <label class="input-label">${t.itemType}</label>
+                    <select class="input-field" id="modal-item-type">
+                        ${state.itemTypes.map(type => `<option value="${type}" ${item.itemType === type ? 'selected' : ''}>${type}</option>`).join('')}
+                    </select>
+                </div>
+            `;
+            
+            elements.itemModal.style.display = 'flex';
+        }
+
+        // Close modal
+        function closeModal() {
+            elements.itemModal.style.display = 'none';
+        }
+
+        // Handle modal submit
+        function handleModalSubmit() {
+            const t = translations[state.language];
+            
+            if (state.modalType === 'add') {
+                const itemName = document.getElementById('modal-item-name').value;
+                if (!itemName) {
+                    alert(t.validation);
+                    return;
+                }
+                
+                const isPackage = document.querySelector('input[name="is-package"]:checked').value;
+                let numberOfItems;
+                
+                if (isPackage === 'yes') {
+                    const packageCount = parseInt(document.getElementById('modal-package-count').value) || 0;
+                    const itemsPerPackage = parseInt(document.getElementById('modal-items-per-package').value) || 0;
+                    numberOfItems = packageCount * itemsPerPackage;
+                    
+                    if (packageCount <= 0 || itemsPerPackage <= 0) {
+                        alert(t.validation);
+                        return;
+                    }
+                } else {
+                    numberOfItems = parseInt(document.getElementById('modal-item-count').value) || 0;
+                    if (numberOfItems <= 0) {
+                        alert(t.validation);
+                        return;
+                    }
+                }
+                
+                const itemId = document.getElementById('modal-item-id').value;
+                const itemType = document.getElementById('modal-item-type').value;
+                
+                const newItem = {
+                    itemId,
+                    itemName,
+                    numberOfItems,
+                    itemType,
+                    isPackage
+                };
+                
+                if (isPackage === 'yes') {
+                    newItem.numberOfPackages = parseInt(document.getElementById('modal-package-count').value);
+                    newItem.itemsPerPackage = parseInt(document.getElementById('modal-items-per-package').value);
+                }
+                
+                state.items.push(newItem);
+                saveData();
+                alert(t.operationSuccess);
+                closeModal();
+                render();
+                
+            } else if (state.modalType === 'modify') {
+                const amount = parseInt(document.getElementById('modal-amount').value);
+                if (isNaN(amount) || amount <= 0) {
+                    alert('Please enter a valid amount');
+                    return;
+                }
+                
+                const action = document.querySelector('input[name="modify-action"]:checked').value;
+                const itemType = document.getElementById('modal-item-type').value;
+                
+                const updatedItems = state.items.map(item => {
+                    if (item.itemId === state.selectedItem.itemId) {
+                        let newAmount = item.numberOfItems;
+                        if (action === 'increase') {
+                            newAmount += amount;
+                        } else {
+                            newAmount -= amount;
+                            if (newAmount < 0) {
+                                alert('Cannot take more items than available');
+                                return item;
+                            }
+                        }
+                        
+                        return {
+                            ...item,
+                            numberOfItems: newAmount,
+                            itemType: itemType
+                        };
+                    }
+                    return item;
+                });
+                
+                state.items = updatedItems;
+                saveData();
+                alert(t.operationSuccess);
+                closeModal();
+                render();
+            }
+        }
+
+        // Generate a unique ID
+        function generateId() {
+            if (state.items.length === 0) return '0001';
+            
+            const numericIds = state.items.map(item => {
+                const id = parseInt(item.itemId, 10);
+                return isNaN(id) ? 0 : id;
+            });
+            
+            const maxId = Math.max(...numericIds, 0);
+            const newId = maxId + 1;
+            
+            return newId.toString().padStart(4, '0');
+        }
+
+        // Export data
+        function exportData() {
+            const t = translations[state.language];
+            
+            if (state.items.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const dataStr = JSON.stringify({
+                items: state.items,
+                exportedAt: new Date().toISOString(),
+                version: '1.0',
+                app: 'Store System'
+            });
+            
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `store-system-backup-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+
+        // Import data
+        function importData() {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = '.json';
+            
+            fileInput.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const content = e.target.result;
+                        const parsedData = JSON.parse(content);
+                        
+                        let itemsToImport = [];
+                        if (parsedData.items && Array.isArray(parsedData.items)) {
+                            itemsToImport = parsedData.items;
+                        } else if (Array.isArray(parsedData)) {
+                            itemsToImport = parsedData;
+                        } else {
+                            alert('Invalid file format');
+                            return;
+                        }
+                        
+                        const validItems = itemsToImport.filter(item => 
+                            item.itemId && item.itemName && item.numberOfItems !== undefined
+                        );
+                        
+                        if (validItems.length === 0) {
+                            alert('No valid items found in the file');
+                            return;
+                        }
+                        
+                        if (validItems.length !== itemsToImport.length) {
+                            alert(`Only ${validItems.length} out of ${itemsToImport.length} items were valid and imported.`);
+                        }
+                        
+                        state.items = validItems;
+                        saveData();
+                        alert(`${validItems.length} items imported successfully`);
+                        render();
+                    } catch (error) {
+                        console.error('Error importing data:', error);
+                        alert('Failed to import data: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            fileInput.click();
+        }
+
+        // Initialize the app when the page loads
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>

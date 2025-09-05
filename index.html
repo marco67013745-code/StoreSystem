@@ -837,9 +837,6 @@
                     const isSelected = state.selectedItems.has(item.itemId);
                     return `
                     <div class="list-item ${isSelected ? 'selected' : ''}" data-id="${item.itemId}">
-                        ${state.selectionMode ? `
-                            <input type="checkbox" class="item-checkbox" ${isSelected ? 'checked' : ''}>
-                        ` : ''}
                         <div class="item-content">
                             <div class="item-name">${item.itemName}</div>
                             <div class="item-details">
@@ -909,22 +906,10 @@
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    const checkbox = itemElement.querySelector('.item-checkbox');
-                    if (checkbox) {
-                        checkbox.checked = !checkbox.checked;
-                        toggleItemSelection(itemId, checkbox.checked);
-                    }
+                    const isSelected = state.selectedItems.has(itemId);
+                    toggleItemSelection(itemId, !isSelected);
                 }
             });
-            
-            // Checkbox change handler
-            const checkbox = itemElement.querySelector('.item-checkbox');
-            if (checkbox) {
-                checkbox.addEventListener('change', (e) => {
-                    e.stopPropagation();
-                    toggleItemSelection(itemId, checkbox.checked);
-                });
-            }
         }
         
         // Start long press timer
@@ -1149,7 +1134,7 @@
                 </div>
                 <div class="input-group">
                     <label class="input-label">Amount</label>
-                    <input type="number" class="input-field" id="modal-amount" required>
+                    <input type="number" class="input-field" id="modal-amount" value="0">
                 </div>
                 <div class="input-group">
                     <label class="input-label">${t.itemType}</label>
@@ -1226,9 +1211,9 @@
                     alert(t.validation);
                     return;
                 }
-                const amount = parseInt(document.getElementById('modal-amount').value);
-                if (isNaN(amount) || amount <= 0) {
-                    alert('Please enter a valid amount');
+                const amount = parseInt(document.getElementById('modal-amount').value) || 0;
+                if (amount < 0) {
+                    alert('Amount cannot be negative');
                     return;
                 }
                 
